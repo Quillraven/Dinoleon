@@ -1,0 +1,62 @@
+
+ui.png
+size: 2048, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+close
+  rotate: false
+  xy: 639, 362
+  size: 214, 215
+  orig: 214, 215
+  offset: 0, 0
+  index: -1
+heart
+  rotate: false
+  xy: 1492, 808
+  size: 184, 173
+  orig: 184, 173
+  offset: 0, 0
+  index: -1
+restart
+  rotate: false
+  xy: 1276, 766
+  size: 214, 215
+  orig: 214, 215
+  offset: 0, 0
+  index: -1
+star1
+  rotate: false
+  xy: 639, 656
+  size: 635, 325
+  orig: 635, 325
+  offset: 0, 0
+  index: -1
+star2
+  rotate: false
+  xy: 2, 656
+  size: 635, 325
+  orig: 635, 325
+  offset: 0, 0
+  index: -1
+star3
+  rotate: false
+  xy: 2, 2
+  size: 635, 325
+  orig: 635, 325
+  offset: 0, 0
+  index: -1
+star4
+  rotate: false
+  xy: 2, 329
+  size: 635, 325
+  orig: 635, 325
+  offset: 0, 0
+  index: -1
+table2
+  rotate: false
+  xy: 639, 579
+  size: 365, 75
+  orig: 365, 75
+  offset: 0, 0
+  index: -1

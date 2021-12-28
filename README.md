@@ -1,11 +1,15 @@
 # Dinoleon
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/tommyettinger/gdx-liftoff).
-
-This project was generated with a template that includes Kotlin application launchers and an empty `ApplicationAdapter` implemented in Kotlin.
+TBD
 
 ## Credits
 - Arks: [Dino Sprites](https://arks.itch.io/dino-characters)
+- Szadi art: [Platformer Fantasy Free Package](https://szadiart.itch.io/paltformer-fantasy-complete)
+- craftpix.net: [Jungle Cartoon GUI](https://free-game-assets.itch.io/free-jungle-cartoon-gui)
+- [Soup of Justice Font](https://www.dafont.com/soup-of-justice.font)
+- [cooltext.com](https://de.cooltext.com/) for Logo Generator
 - Imagemagick to split images. Example:
 
-  ```magick convert blue_dino.png -crop 24x24 dino_blue-%02d.png```
+  ```magick convert dino_blue.png -crop 24x24 game/dino_blue/frame_%02d.png```
+- [GDX-Texture-Packer-GUI](https://github.com/crashinvaders/gdx-texture-packer-gui)
+- [GDX-Liftoff](https://github.com/tommyettinger/gdx-liftoff) for basic project setup

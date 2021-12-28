@@ -1,107 +1,173 @@
 package com.github.quillraven.dinoleon.screen
 
-import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.utils.ObjectMap
+import com.badlogic.gdx.utils.Scaling
 import com.badlogic.gdx.utils.viewport.FitViewport
-import com.github.quillraven.dinoleon.component.AnimationComponent
-import com.github.quillraven.dinoleon.component.PhysicComponent
-import com.github.quillraven.dinoleon.component.RenderComponent
-import com.github.quillraven.dinoleon.component.TransformComponent
-import com.github.quillraven.dinoleon.component.TransformComponent.Companion.Layer
-import com.github.quillraven.dinoleon.system.AnimationSystem
-import com.github.quillraven.dinoleon.system.DebugSystem
-import com.github.quillraven.dinoleon.system.RenderSystem
+import com.github.quillraven.dinoleon.component.*
+import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.PhysicComponentListener
+import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
+import com.github.quillraven.dinoleon.event.*
+import com.github.quillraven.dinoleon.system.*
+import com.github.quillraven.dinoleon.ui.setGameOverlay
+import com.github.quillraven.dinoleon.ui.setMenuOverlay
 import com.github.quillraven.fleks.World
 import ktx.app.KtxScreen
-import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.createWorld
+import ktx.box2d.edge
 
 class GameScreen(
-    batch: Batch
-) : KtxScreen {
-    private val viewport = FitViewport(16f, 9f)
-    private val stage = Stage(viewport, batch)
-    private val physicWorld = createWorld(gravity = Vector2.Zero)
-    private val physicRenderer = Box2DDebugRenderer()
+    batch: Batch,
+    properties: ObjectMap<String, String>
+) : KtxScreen, EventListener {
+    private val gameStage = Stage(FitViewport(16f, 9f), batch)
+    private val uiStage = Stage(FitViewport(1360f, 765f))
+    private val physicWorld = createWorld(gravity = Vector2.Zero).apply {
+        autoClearForces = false
+    }
     private val gameAtlas = TextureAtlas("game.atlas")
     private val eWorld = World {
+        system<DinoColorSystem>()
+        system<SpawnSystem>()
+        system<PhysicSystem>()
+        system<DamageSystem>()
         system<AnimationSystem>()
+        system<ScenerySystem>()
         system<RenderSystem>()
-        system<DebugSystem>()
+        system<DespawnSystem>()
+        if (properties["debug"].toBoolean()) {
+            inject(gameStage.viewport.camera)
+            system<DebugSystem>()
+        }
 
-        inject(stage)
+        inject(gameStage)
         inject(physicWorld)
-        inject(physicRenderer)
-        inject<Camera>(viewport.camera)
         inject(gameAtlas)
+
+        componentListener(PhysicComponentListener)
+    }.also { physicWorld.setContactListener(it.system<PhysicSystem>()) }
+
+    private var numSpawns = 0
+
+    init {
+        // spawn player
+        spawnPlayer()
+
+        // set event listener and menu overlay
+        uiStage.addListener(this)
+        gameStage.addListener(this)
+        Gdx.input.inputProcessor = InputMultiplexer(uiStage, eWorld.system<DinoColorSystem>())
+        switchToMenu()
     }
 
-    override fun show() {
-        super.show()
-        spawnPlayer(1f, 1f, Layer.OBJECTS, "blue-idle")
-        spawnPlayer(1.25f, 1.25f, Layer.FOREGROUND, "blue-run")
-        spawnPlayer(0.75f, 0.75f, Layer.BACKGROUND, "blue-hit")
-    }
-
-    private fun spawnPlayer(x: Float, y: Float, layer: Layer, animation: String) {
+    private fun spawnPlayer() {
         eWorld.entity {
-            val transform = add<TransformComponent> {
-                position.set(x, y)
-                size.set(0.75f, 1f)
-                this.layer = layer
-            }
-            add<AnimationComponent> {
-                nextAnimation = animation
-            }
-            add<RenderComponent> {
-                image.drawable = TextureRegionDrawable(gameAtlas.findRegion("blue-dino_blue-10"))
-            }
-            add<PhysicComponent> {
-                body = physicWorld.body(BodyType.DynamicBody) {
-                    position.set(
-                        transform.position.x + transform.size.x * 0.5f,
-                        transform.position.y + transform.size.y * 0.5f
-                    )
-                    fixedRotation = true
-                    allowSleep = false
-                    box(transform.size.x, transform.size.y) {
-                        friction = 0f
-                        isSensor = false
-                    }
-
-                    // TODO give access to internal entity of EntityCreateCfg
-                    // userData =
+            val imageCmp = add<ImageComponent> {
+                image = Image().apply {
+                    setScaling(Scaling.fill)
+                    setPosition(1.5f, 1f)
+                    setSize(2f, 2f)
                 }
             }
+            add<AnimationComponent> { nextAnimation = "dino-blue-run" }
+            this.physicCmpFromImage(physicWorld, imageCmp.image) { width, height ->
+                box(width, height)
+                val sensorDistX = 0.5f
+                val sensorH = height + 0.5f
+                edge(sensorDistX, -sensorH, sensorDistX, sensorH) { isSensor = true }
+            }
+            add<DinoComponent> { life = 5 }
+            add<DinoColorComponent> { color = DinoColor.BLUE }
         }
+    }
+
+    private fun switchToMenu() {
+        eWorld.system<DinoColorSystem>().enabled = false
+        eWorld.system<SpawnSystem>().enabled = false
+        eWorld.removeAll()
+        spawnPlayer()
+        uiStage.setMenuOverlay()
+    }
+
+    private fun switchToGame(difficulty: Difficulty) {
+        uiStage.setGameOverlay()
+        eWorld.system<SpawnSystem>().changeDifficulty(difficulty)
+        eWorld.system<DinoColorSystem>().enabled = true
+        eWorld.system<SpawnSystem>().enabled = true
     }
 
     override fun resize(width: Int, height: Int) {
         super.resize(width, height)
-        viewport.update(width, height, true)
+        gameStage.viewport.update(width, height, true)
+        uiStage.viewport.update(width, height, true)
+    }
+
+    private fun reduceSpawnCtr() {
+        --numSpawns
+        if (numSpawns <= 0) {
+            // TODO show victory UI
+            switchToMenu()
+        }
+    }
+
+    private fun updateLife(life: Int) {
+        // TODO update heart color
+    }
+
+    private fun showDefeat() {
+        // TODO show defeat UI
+        switchToMenu()
+    }
+
+    override fun handle(event: Event?): Boolean {
+        when (event) {
+            is ChangeDifficultyEvent -> switchToGame(event.difficulty)
+            is StartSpawnEvent -> numSpawns = event.numSpawns
+            is SpawnRemovalEvent -> reduceSpawnCtr()
+            is DinoDamageEvent -> updateLife(event.life)
+            is DinoDeathEvent -> showDefeat()
+            else -> return false
+        }
+        return true
     }
 
     override fun render(delta: Float) {
         super.render(delta)
         eWorld.update(delta)
+        uiStage.viewport.apply()
+        uiStage.act(delta)
+        uiStage.draw()
+
+        // TODO remove debug
+        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+            uiStage.setGameOverlay()
+        }
     }
 
     override fun dispose() {
         super.dispose()
-        stage.dispose()
+        eWorld.dispose()
+        gameStage.dispose()
+        uiStage.dispose()
         physicWorld.dispose()
-        physicRenderer.dispose()
         gameAtlas.dispose()
+    }
 
-        // TODO how to remove body from PhysicComponent
-        // body.world.destroyBody(body)
-        // body.userData = null
+    companion object {
+        const val UNIT_SCALE = 1 / 24f
+
+        enum class Difficulty {
+            EASY, MEDIUM, HARD
+        }
     }
 }

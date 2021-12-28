@@ -11,5 +11,6 @@ fun main() {
         setTitle("Dinoleon")
         setWindowedMode(640, 360)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
+        useVsync(false)
     })
 }
