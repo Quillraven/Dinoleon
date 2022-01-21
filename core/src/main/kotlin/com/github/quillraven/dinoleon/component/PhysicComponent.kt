@@ -37,7 +37,7 @@ class PhysicComponent(
             }
         }
 
-        object PhysicComponentListener : ComponentListener<PhysicComponent> {
+        class PhysicComponentListener : ComponentListener<PhysicComponent> {
             override fun onComponentAdded(entity: Entity, component: PhysicComponent) {
                 component.body.userData = entity
             }

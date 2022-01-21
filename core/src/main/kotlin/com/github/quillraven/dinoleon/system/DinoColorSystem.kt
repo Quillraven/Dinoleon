@@ -1,5 +1,6 @@
 package com.github.quillraven.dinoleon.system
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.github.quillraven.dinoleon.component.AnimationComponent
 import com.github.quillraven.dinoleon.component.DinoColor
@@ -17,12 +18,15 @@ class DinoColorSystem(
     private val aniCmps: ComponentMapper<AnimationComponent>
 ) : IteratingSystem(enabled = false), KtxInputAdapter {
     private var newColor: DinoColor? = null
+    private val sndChange = Gdx.audio.newSound(Gdx.files.internal("change_color.wav"))
 
     override fun onTickEntity(entity: Entity) {
         val color = newColor
-        if (color != null) {
+        val colorCmp = colorCmps[entity]
+        if (color != null && color != colorCmp.color) {
+            sndChange.play()
             newColor = null
-            colorCmps[entity].color = color
+            colorCmp.color = color
             aniCmps[entity].nextAnimation = "dino-${color.name.lowercase()}-run"
         }
     }
@@ -40,5 +44,9 @@ class DinoColorSystem(
             else -> return false
         }
         return true
+    }
+
+    override fun onDispose() {
+        sndChange.dispose()
     }
 }

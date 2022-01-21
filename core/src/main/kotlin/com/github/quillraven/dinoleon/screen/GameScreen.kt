@@ -54,8 +54,11 @@ class GameScreen(
         inject(physicWorld)
         inject(gameAtlas)
 
-        componentListener(PhysicComponentListener)
+        componentListener<PhysicComponentListener>()
     }.also { physicWorld.setContactListener(it.system<PhysicSystem>()) }
+    private val mscMenu = Gdx.audio.newMusic(Gdx.files.internal("Surf Rock Light Loop.ogg")).apply { isLooping = true }
+    private val mscGame = Gdx.audio.newMusic(Gdx.files.internal("Surfs Up Dude Loop.ogg")).apply { isLooping = true }
+    private val sndHit = Gdx.audio.newSound(Gdx.files.internal("hit.wav"))
 
     private var numSpawns = 0
 
@@ -92,6 +95,9 @@ class GameScreen(
     }
 
     private fun switchToMenu() {
+        mscGame.stop()
+        mscMenu.play()
+
         eWorld.system<DinoColorSystem>().enabled = false
         eWorld.system<SpawnSystem>().enabled = false
         eWorld.removeAll()
@@ -100,6 +106,9 @@ class GameScreen(
     }
 
     private fun switchToGame(difficulty: Difficulty) {
+        mscMenu.stop()
+        mscGame.play()
+
         uiStage.setGameOverlay()
         eWorld.system<SpawnSystem>().changeDifficulty(difficulty)
         eWorld.system<DinoColorSystem>().enabled = true
@@ -122,6 +131,7 @@ class GameScreen(
 
     private fun updateLife(life: Int) {
         // TODO update heart color
+        sndHit.play()
     }
 
     private fun showDefeat() {
@@ -161,6 +171,9 @@ class GameScreen(
         uiStage.dispose()
         physicWorld.dispose()
         gameAtlas.dispose()
+        mscMenu.dispose()
+        mscGame.dispose()
+        sndHit.dispose()
     }
 
     companion object {
