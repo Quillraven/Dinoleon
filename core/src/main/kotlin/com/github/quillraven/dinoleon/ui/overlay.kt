@@ -1,12 +1,16 @@
 package com.github.quillraven.dinoleon.ui
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Value.percentHeight
 import com.github.quillraven.dinoleon.event.ChangeDifficultyEvent
 import com.github.quillraven.dinoleon.screen.GameScreen.Companion.Difficulty.*
 import ktx.actors.centerPosition
 import ktx.actors.onClick
+import ktx.actors.plusAssign
 import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.label
 import ktx.scene2d.scene2d
@@ -105,6 +109,17 @@ fun Stage.setGameOverlay() {
         theStage.addActor(Image(skin.drawable(Drawables.HEART)).apply {
             this.scaleBy(-0.7f)
             this.setPosition(offsetX + 10f + 72 * idx, offsetY + 10f)
+            this.userObject = "HEART-$idx"
         })
+    }
+}
+
+fun Stage.setActiveHearts(hearts: Int) {
+    val theStage = this
+    repeat(5 - hearts.coerceIn(0, 5)) { idx ->
+        theStage.actors.firstOrNull { it.userObject == "HEART-${4 - idx}" }?.let { heartImg ->
+            heartImg.clearActions()
+            heartImg += Actions.color(Color.DARK_GRAY, 1f, Interpolation.bounceOut)
+        }
     }
 }

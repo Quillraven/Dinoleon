@@ -18,6 +18,7 @@ import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.Physic
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
 import com.github.quillraven.dinoleon.event.*
 import com.github.quillraven.dinoleon.system.*
+import com.github.quillraven.dinoleon.ui.setActiveHearts
 import com.github.quillraven.dinoleon.ui.setGameOverlay
 import com.github.quillraven.dinoleon.ui.setMenuOverlay
 import com.github.quillraven.fleks.World
@@ -130,8 +131,8 @@ class GameScreen(
     }
 
     private fun updateLife(life: Int) {
-        // TODO update heart color
         sndHit.play()
+        uiStage.setActiveHearts(life)
     }
 
     private fun showDefeat() {
