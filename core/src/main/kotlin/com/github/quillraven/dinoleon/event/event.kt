@@ -12,3 +12,7 @@ class SpawnRemovalEvent : Event()
 data class DinoDamageEvent(val life: Int) : Event()
 
 class DinoDeathEvent : Event()
+
+class GameRestartEvent : Event()
+
+class GameReturnMenuEvent : Event()

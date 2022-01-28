@@ -13,7 +13,7 @@ import ktx.style.set
 import ktx.style.skin
 
 enum class Drawables {
-    TABLE_BG, LOGO, HEADER_BG, HEART, TABLE2;
+    TABLE_BG, LOGO, HEADER_BG, HEART, TABLE2, TABLE, STAR1, STAR2, STAR3, STAR4, CLOSE, RESTART;
 
     val assetPath: String
         get() = "${this.name.lowercase()}.png"
@@ -45,16 +45,19 @@ fun createSkin(): Skin {
             borderColor = Color.BLACK
             borderWidth = 2f
         })
-        newSkin["font-big"] = fontBig.apply {
-            data.markupEnabled = true
-        }
+        val fontHuge = generator.generateFont(FreeTypeFontGenerator.FreeTypeFontParameter().apply {
+            size = 84
+            borderColor = Color.BLACK
+            borderWidth = 2f
+        })
+        newSkin["font-big"] = fontBig.apply { data.markupEnabled = true }
+        newSkin["font-huge"] = fontHuge.apply { data.markupEnabled = true }
         generator.dispose()
 
         /**
          * Labels
          */
-        label {
-            font = fontBig
-        }
+        label { font = fontBig }
+        label("huge") { font = fontHuge }
     }
 }

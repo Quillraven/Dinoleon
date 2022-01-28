@@ -34,9 +34,8 @@ class ScenerySystem(private val stage: Stage) : IntervalSystem() {
     }
 
     override fun onTick() {
+        // add actor every frame since all actors get removed each frame in the RenderSystem
         stage.addActor(bgdActor)
-
-        // TODO spawn small/big trees
     }
 
     override fun onDispose() {

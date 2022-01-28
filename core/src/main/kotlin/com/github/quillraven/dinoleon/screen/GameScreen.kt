@@ -1,7 +1,6 @@
 package com.github.quillraven.dinoleon.screen
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -9,23 +8,18 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.ObjectMap
-import com.badlogic.gdx.utils.Scaling
 import com.badlogic.gdx.utils.viewport.FitViewport
-import com.github.quillraven.dinoleon.component.*
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.PhysicComponentListener
-import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
 import com.github.quillraven.dinoleon.event.*
 import com.github.quillraven.dinoleon.system.*
 import com.github.quillraven.dinoleon.ui.setActiveHearts
 import com.github.quillraven.dinoleon.ui.setGameOverlay
 import com.github.quillraven.dinoleon.ui.setMenuOverlay
+import com.github.quillraven.dinoleon.ui.setScoreOverlay
 import com.github.quillraven.fleks.World
 import ktx.app.KtxScreen
-import ktx.box2d.box
 import ktx.box2d.createWorld
-import ktx.box2d.edge
 
 class GameScreen(
     batch: Batch,
@@ -38,6 +32,7 @@ class GameScreen(
     }
     private val gameAtlas = TextureAtlas("game.atlas")
     private val eWorld = World {
+        system<PlayerSpawnSystem>()
         system<DinoColorSystem>()
         system<SpawnSystem>()
         system<PhysicSystem>()
@@ -61,7 +56,9 @@ class GameScreen(
     private val mscGame = Gdx.audio.newMusic(Gdx.files.internal("Surfs Up Dude Loop.ogg")).apply { isLooping = true }
     private val sndHit = Gdx.audio.newSound(Gdx.files.internal("hit.wav"))
 
+    private var remainingLife = 5
     private var numSpawns = 0
+    private var lastDifficulty = Difficulty.EASY
 
     init {
         // spawn player
@@ -75,24 +72,8 @@ class GameScreen(
     }
 
     private fun spawnPlayer() {
-        eWorld.entity {
-            val imageCmp = add<ImageComponent> {
-                image = Image().apply {
-                    setScaling(Scaling.fill)
-                    setPosition(1.5f, 1f)
-                    setSize(2f, 2f)
-                }
-            }
-            add<AnimationComponent> { nextAnimation = "dino-blue-run" }
-            this.physicCmpFromImage(physicWorld, imageCmp.image) { width, height ->
-                box(width, height)
-                val sensorDistX = 0.5f
-                val sensorH = height + 0.5f
-                edge(sensorDistX, -sensorH, sensorDistX, sensorH) { isSensor = true }
-            }
-            add<DinoComponent> { life = 5 }
-            add<DinoColorComponent> { color = DinoColor.BLUE }
-        }
+        remainingLife = 5
+        eWorld.system<PlayerSpawnSystem>().respawnPlayer = true
     }
 
     private fun switchToMenu() {
@@ -106,10 +87,22 @@ class GameScreen(
         uiStage.setMenuOverlay()
     }
 
+    private fun switchToScore() {
+        mscGame.stop()
+        mscMenu.play()
+
+        eWorld.system<DinoColorSystem>().enabled = false
+        eWorld.system<SpawnSystem>().enabled = false
+        eWorld.removeAll()
+        uiStage.setScoreOverlay(remainingLife)
+        spawnPlayer()
+    }
+
     private fun switchToGame(difficulty: Difficulty) {
         mscMenu.stop()
         mscGame.play()
 
+        lastDifficulty = difficulty
         uiStage.setGameOverlay()
         eWorld.system<SpawnSystem>().changeDifficulty(difficulty)
         eWorld.system<DinoColorSystem>().enabled = true
@@ -125,19 +118,18 @@ class GameScreen(
     private fun reduceSpawnCtr() {
         --numSpawns
         if (numSpawns <= 0) {
-            // TODO show victory UI
-            switchToMenu()
+            switchToScore()
         }
     }
 
     private fun updateLife(life: Int) {
+        remainingLife = life
         sndHit.play()
         uiStage.setActiveHearts(life)
     }
 
     private fun showDefeat() {
-        // TODO show defeat UI
-        switchToMenu()
+        switchToScore()
     }
 
     override fun handle(event: Event?): Boolean {
@@ -147,6 +139,8 @@ class GameScreen(
             is SpawnRemovalEvent -> reduceSpawnCtr()
             is DinoDamageEvent -> updateLife(event.life)
             is DinoDeathEvent -> showDefeat()
+            is GameRestartEvent -> switchToGame(lastDifficulty)
+            is GameReturnMenuEvent -> switchToMenu()
             else -> return false
         }
         return true
@@ -158,11 +152,6 @@ class GameScreen(
         uiStage.viewport.apply()
         uiStage.act(delta)
         uiStage.draw()
-
-        // TODO remove debug
-        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-            uiStage.setGameOverlay()
-        }
     }
 
     override fun dispose() {

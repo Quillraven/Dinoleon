@@ -5,11 +5,15 @@ import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Value.percentHeight
 import com.github.quillraven.dinoleon.event.ChangeDifficultyEvent
+import com.github.quillraven.dinoleon.event.GameRestartEvent
+import com.github.quillraven.dinoleon.event.GameReturnMenuEvent
 import com.github.quillraven.dinoleon.screen.GameScreen.Companion.Difficulty.*
 import ktx.actors.centerPosition
 import ktx.actors.onClick
+import ktx.actors.plus
 import ktx.actors.plusAssign
 import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.label
@@ -122,4 +126,54 @@ fun Stage.setActiveHearts(hearts: Int) {
             heartImg += Actions.color(Color.DARK_GRAY, 1f, Interpolation.bounceOut)
         }
     }
+}
+
+private fun starDrawable(remainingLife: Int): Drawables {
+    return when {
+        remainingLife >= 4 -> Drawables.STAR1
+        remainingLife >= 2 -> Drawables.STAR2
+        remainingLife >= 1 -> Drawables.STAR3
+        else -> Drawables.STAR4
+    }
+}
+
+fun Stage.setScoreOverlay(remainingLife: Int) {
+    val skin = Scene2DSkin.defaultSkin
+    val theStage = this
+    theStage.clearActors()
+
+    theStage.addActor(Image(skin.drawable(Drawables.TABLE)).apply {
+        this.scaleBy(-0.5f)
+        this.centerPosition(
+            theStage.width * (this.scaleX + 1),
+            theStage.height * (this.scaleX + 1),
+        )
+    })
+
+    theStage.addActor(Image(skin.drawable(starDrawable(remainingLife))).apply {
+        this.scaleBy(-0.25f)
+        this.setPosition(485f, 200f)
+        this += Actions.color(Color.DARK_GRAY) + Actions.color(Color.WHITE, 1f, Interpolation.swingIn)
+    })
+
+    theStage.addActor(Image(skin.drawable(Drawables.HEADER_BG)).apply {
+        this.scaleBy(-0.6f)
+        this.setPosition(495f, 430f)
+    })
+    val title = if (remainingLife > 0) "[#00FF00]VICTORY[]" else "[#ff341c]  DEFEAT[]"
+    theStage.addActor(Label(title, skin, "huge").apply {
+        this.setPosition(560f, 475f)
+    })
+
+    theStage.addActor(Image(skin.drawable(Drawables.CLOSE)).apply {
+        this.scaleBy(-0.5f)
+        this.setPosition(950f, 500f)
+        this.onClick { this.fire(GameReturnMenuEvent()) }
+    })
+
+    theStage.addActor(Image(skin.drawable(Drawables.RESTART)).apply {
+        this.scaleBy(-0.5f)
+        this.setPosition(400f, 500f)
+        this.onClick { this.fire(GameRestartEvent()) }
+    })
 }
