@@ -92,11 +92,7 @@ class PhysicSystem(
             val dinoColor = colorCmps[dino]
             val wallColor = colorCmps[wall]
             if (dinoColor != wallColor) {
-                if (dino in damageCmps) {
-                    damageCmps[dino].damage++
-                } else {
-                    configureEntity(dino) { damageCmps.add(it) { damage = 1 } }
-                }
+                configureEntity(dino) { damageCmps.addOrUpdate(it) { ++damage } }
             }
         }
     }
