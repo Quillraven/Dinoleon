@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -17,9 +16,10 @@ import com.github.quillraven.dinoleon.ui.setActiveHearts
 import com.github.quillraven.dinoleon.ui.setGameOverlay
 import com.github.quillraven.dinoleon.ui.setMenuOverlay
 import com.github.quillraven.dinoleon.ui.setScoreOverlay
-import com.github.quillraven.fleks.World
+import com.github.quillraven.fleks.world
 import ktx.app.KtxScreen
 import ktx.box2d.createWorld
+import ktx.math.vec2
 
 class GameScreen(
     batch: Batch,
@@ -27,30 +27,40 @@ class GameScreen(
 ) : KtxScreen, EventListener {
     private val gameStage = Stage(FitViewport(16f, 9f), batch)
     private val uiStage = Stage(FitViewport(1360f, 765f))
-    private val physicWorld = createWorld(gravity = Vector2.Zero).apply {
+    private val physicWorld = createWorld(gravity = vec2()).apply {
         autoClearForces = false
     }
     private val gameAtlas = TextureAtlas("game.atlas")
-    private val eWorld = World {
-        system<PlayerSpawnSystem>()
-        system<DinoColorSystem>()
-        system<SpawnSystem>()
-        system<PhysicSystem>()
-        system<DamageSystem>()
-        system<AnimationSystem>()
-        system<ScenerySystem>()
-        system<RenderSystem>()
-        system<DespawnSystem>()
-        if (properties["debug"].toBoolean()) {
-            inject(gameStage.viewport.camera)
-            system<DebugSystem>()
+    private val eWorld = world {
+        val debug = properties["debug"].toBoolean()
+
+        injectables {
+            add(gameStage)
+            add(physicWorld)
+            add(gameAtlas)
+            if (debug) {
+                add(gameStage.viewport.camera)
+            }
         }
 
-        inject(gameStage)
-        inject(physicWorld)
-        inject(gameAtlas)
+        components {
+            add<PhysicComponentListener>()
+        }
 
-        componentListener<PhysicComponentListener>()
+        systems {
+            add<PlayerSpawnSystem>()
+            add<DinoColorSystem>()
+            add<SpawnSystem>()
+            add<PhysicSystem>()
+            add<DamageSystem>()
+            add<AnimationSystem>()
+            add<ScenerySystem>()
+            add<RenderSystem>()
+            add<DespawnSystem>()
+            if (debug) {
+                add<DebugSystem>()
+            }
+        }
     }.also { physicWorld.setContactListener(it.system<PhysicSystem>()) }
     private val mscMenu = Gdx.audio.newMusic(Gdx.files.internal("Surf Rock Light Loop.ogg")).apply { isLooping = true }
     private val mscGame = Gdx.audio.newMusic(Gdx.files.internal("Surfs Up Dude Loop.ogg")).apply { isLooping = true }
