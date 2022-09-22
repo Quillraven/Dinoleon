@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
-import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.PhysicComponentListener
+import com.github.quillraven.dinoleon.component.PhysicComponent
 import com.github.quillraven.dinoleon.event.*
 import com.github.quillraven.dinoleon.system.*
 import com.github.quillraven.dinoleon.ui.setActiveHearts
@@ -44,24 +44,26 @@ class GameScreen(
         }
 
         components {
-            add<PhysicComponentListener>()
+            onAdd(PhysicComponent, PhysicComponent.onAddPhysic)
+            onRemove(PhysicComponent, PhysicComponent.onRemovePhysic)
         }
 
         systems {
-            add<PlayerSpawnSystem>()
-            add<DinoColorSystem>()
-            add<SpawnSystem>()
-            add<PhysicSystem>()
-            add<DamageSystem>()
-            add<AnimationSystem>()
-            add<ScenerySystem>()
-            add<RenderSystem>()
-            add<DespawnSystem>()
+            add(PlayerSpawnSystem())
+            add(DinoColorSystem())
+            add(SpawnSystem())
+            add(PhysicSystem().also { physicWorld.setContactListener(it) })
+            add(DamageSystem())
+            add(AnimationSystem())
+            add(ScenerySystem())
+            add(RenderSystem())
+            add(DespawnSystem())
             if (debug) {
-                add<DebugSystem>()
+                add(DebugSystem())
             }
         }
-    }.also { physicWorld.setContactListener(it.system<PhysicSystem>()) }
+    }
+
     private val mscMenu = Gdx.audio.newMusic(Gdx.files.internal("Surf Rock Light Loop.ogg")).apply { isLooping = true }
     private val mscGame = Gdx.audio.newMusic(Gdx.files.internal("Surfs Up Dude Loop.ogg")).apply { isLooping = true }
     private val sndHit = Gdx.audio.newSound(Gdx.files.internal("hit.wav"))

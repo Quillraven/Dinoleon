@@ -5,14 +5,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.*
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
-import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.World.Companion.family
+import com.github.quillraven.fleks.World.Companion.inject
 import ktx.box2d.box
 import ktx.box2d.edge
 
-@AllOf(components = [DinoComponent::class])
-class PlayerSpawnSystem(private val physicWorld: World) : IteratingSystem() {
+class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSystem(family { all(DinoComponent) }) {
     var respawnPlayer = true
 
     override fun onTick() {
@@ -21,22 +21,22 @@ class PlayerSpawnSystem(private val physicWorld: World) : IteratingSystem() {
             respawnPlayer = false
 
             world.entity {
-                val imageCmp = add<ImageComponent> {
+                it += ImageComponent().apply {
                     image = Image().apply {
                         setScaling(Scaling.fill)
                         setPosition(1.5f, 1f)
                         setSize(2f, 2f)
                     }
                 }
-                add<AnimationComponent> { nextAnimation = "dino-blue-run" }
-                this.physicCmpFromImage(physicWorld, imageCmp.image) { width, height ->
+                it += AnimationComponent(nextAnimation = "dino-blue-run")
+                it += physicCmpFromImage(physicWorld, it[ImageComponent].image) { width, height ->
                     box(width, height)
                     val sensorDistX = 0.5f
                     val sensorH = height + 0.5f
                     edge(sensorDistX, -sensorH, sensorDistX, sensorH) { isSensor = true }
                 }
-                add<DinoComponent> { life = 5 }
-                add<DinoColorComponent> { color = DinoColor.BLUE }
+                it += DinoComponent(life = 5)
+                it += DinoColorComponent(DinoColor.BLUE)
             }
         }
     }

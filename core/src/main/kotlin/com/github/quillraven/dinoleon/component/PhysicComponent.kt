@@ -5,19 +5,21 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.github.quillraven.fleks.ComponentListener
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.EntityCreateCfg
+import com.github.quillraven.fleks.Component
+import com.github.quillraven.fleks.ComponentHook
+import com.github.quillraven.fleks.ComponentType
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
 
 class PhysicComponent(
     val impulse: Vector2 = Vector2()
-) {
+) : Component<PhysicComponent> {
     lateinit var body: Body
 
-    companion object {
-        fun EntityCreateCfg.physicCmpFromImage(
+    override fun type() = PhysicComponent
+
+    companion object : ComponentType<PhysicComponent>() {
+        fun physicCmpFromImage(
             world: World,
             image: Image,
             fixtureAction: BodyDefinition.(Float, Float) -> Unit
@@ -27,7 +29,7 @@ class PhysicComponent(
             val width = image.width
             val height = image.height
 
-            return add {
+            return PhysicComponent().apply {
                 body = world.body(BodyDef.BodyType.DynamicBody) {
                     position.set(x + width * 0.5f, y + height * 0.5f)
                     fixedRotation = true
@@ -37,16 +39,14 @@ class PhysicComponent(
             }
         }
 
-        class PhysicComponentListener : ComponentListener<PhysicComponent> {
-            override fun onComponentAdded(entity: Entity, component: PhysicComponent) {
-                component.body.userData = entity
-            }
+        val onAddPhysic: ComponentHook<PhysicComponent> = { _, entity, physic ->
+            physic.body.userData = entity
+        }
 
-            override fun onComponentRemoved(entity: Entity, component: PhysicComponent) {
-                val body = component.body
-                body.world.destroyBody(body)
-                body.userData = null
-            }
+        val onRemovePhysic: ComponentHook<PhysicComponent> = { _, _, physic ->
+            val body = physic.body
+            body.world.destroyBody(body)
+            body.userData = null
         }
     }
 }

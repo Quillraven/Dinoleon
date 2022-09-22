@@ -5,20 +5,17 @@ import com.github.quillraven.dinoleon.component.DamageComponent
 import com.github.quillraven.dinoleon.component.DinoComponent
 import com.github.quillraven.dinoleon.event.DinoDamageEvent
 import com.github.quillraven.dinoleon.event.DinoDeathEvent
-import com.github.quillraven.fleks.AllOf
-import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.World.Companion.family
+import com.github.quillraven.fleks.World.Companion.inject
 
-@AllOf(components = [DinoComponent::class, DamageComponent::class])
 class DamageSystem(
-    private val dinoCmps: ComponentMapper<DinoComponent>,
-    private val damageCmps: ComponentMapper<DamageComponent>,
-    private val stage: Stage
-) : IteratingSystem() {
+    private val stage: Stage = inject()
+) : IteratingSystem(family { all(DinoComponent, DamageComponent) }) {
     override fun onTickEntity(entity: Entity) {
-        val dinoCmp = dinoCmps[entity]
-        val damageCmp = damageCmps[entity]
+        val dinoCmp = entity[DinoComponent]
+        val damageCmp = entity[DamageComponent]
 
         dinoCmp.life -= damageCmp.damage
         stage.root.fire(DinoDamageEvent(dinoCmp.life))
@@ -26,6 +23,6 @@ class DamageSystem(
             stage.root.fire(DinoDeathEvent())
         }
 
-        configureEntity(entity) { damageCmps.remove(it) }
+        entity.configure { it -= DamageComponent }
     }
 }

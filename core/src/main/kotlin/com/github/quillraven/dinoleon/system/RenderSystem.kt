@@ -3,18 +3,17 @@ package com.github.quillraven.dinoleon.system
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.dinoleon.component.ImageComponent
 import com.github.quillraven.dinoleon.ui.clearActors
-import com.github.quillraven.fleks.AllOf
-import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.collection.compareEntity
+import com.github.quillraven.fleks.World.Companion.family
+import com.github.quillraven.fleks.World.Companion.inject
+import com.github.quillraven.fleks.collection.compareEntityBy
 
-@AllOf(components = [ImageComponent::class])
 class RenderSystem(
-    private val stage: Stage,
-    private val imageCmps: ComponentMapper<ImageComponent>
+    private val stage: Stage = inject(),
 ) : IteratingSystem(
-    comparator = compareEntity { e1, e2 -> imageCmps[e1].compareTo(imageCmps[e2]) }
+    family = family { all(ImageComponent) },
+    comparator = compareEntityBy(ImageComponent)
 ) {
     override fun onTick() {
         super.onTick()
@@ -24,6 +23,6 @@ class RenderSystem(
     }
 
     override fun onTickEntity(entity: Entity) {
-        stage.addActor(imageCmps[entity].image)
+        stage.addActor(entity[ImageComponent].image)
     }
 }

@@ -11,19 +11,21 @@ import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.DinoColor
 import com.github.quillraven.dinoleon.component.DinoColorComponent
 import com.github.quillraven.dinoleon.component.ImageComponent
+import com.github.quillraven.dinoleon.component.PhysicComponent
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
 import com.github.quillraven.dinoleon.event.StartSpawnEvent
 import com.github.quillraven.dinoleon.screen.GameScreen.Companion.Difficulty
 import com.github.quillraven.fleks.IntervalSystem
+import com.github.quillraven.fleks.World.Companion.inject
 import ktx.box2d.box
 import ktx.log.logger
 
 private data class Spawn(val numSpawns: Int, val interval: Float, val speed: Float)
 
 class SpawnSystem(
-    private val physicWorld: World,
-    private val atlas: TextureAtlas,
-    private val stage: Stage
+    private val physicWorld: World = inject(),
+    private val atlas: TextureAtlas = inject(),
+    private val stage: Stage = inject()
 ) : IntervalSystem(enabled = false) {
     private lateinit var spawns: Array<Spawn>
     private var spawnIdx = 0
@@ -56,8 +58,9 @@ class SpawnSystem(
 
             world.entity {
                 val colorIdx = MathUtils.random(0, DinoColor.size - 1)
-                add<DinoColorComponent> { color = DinoColor.byOrdinal(colorIdx) }
-                val imageCmp = add<ImageComponent> {
+                it += DinoColorComponent(color = DinoColor.byOrdinal(colorIdx))
+
+                it += ImageComponent().apply {
                     image = Image().apply {
                         setScaling(Scaling.stretch)
                         drawable = wallRegions[colorIdx]
@@ -66,10 +69,11 @@ class SpawnSystem(
                     }
                     layer = 1
                 }
-                val physicCmp = this.physicCmpFromImage(physicWorld, imageCmp.image) { width, height ->
+                it += physicCmpFromImage(physicWorld, it[ImageComponent].image) { width, height ->
                     box(width, height) { isSensor = true }
+
                 }
-                physicCmp.impulse.set(spawn.speed, 0f)
+                it[PhysicComponent].impulse.set(spawn.speed, 0f)
             }
 
             numSpawns--

@@ -2,22 +2,26 @@ package com.github.quillraven.dinoleon.system
 
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.*
-import com.badlogic.gdx.physics.box2d.World
 import com.github.quillraven.dinoleon.component.*
-import com.github.quillraven.fleks.*
+import com.github.quillraven.dinoleon.system.Collision.Companion.fromContact
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.Fixed
+import com.github.quillraven.fleks.IteratingSystem
+import com.github.quillraven.fleks.World.Companion.family
+import com.github.quillraven.fleks.World.Companion.inject
 import ktx.log.logger
 import ktx.math.component1
 import ktx.math.component2
 
 private data class Collision(val dino: Entity, val wall: Entity) {
     companion object {
-        fun fromContact(contact: Contact, dinoCmps: ComponentMapper<DinoComponent>): Collision? {
+        fun IteratingSystem.fromContact(contact: Contact): Collision? {
             val entityA = contact.fixtureA.body.userData as Entity
             val entityB = contact.fixtureB.body.userData as Entity
 
-            return if (entityA in dinoCmps) {
+            return if (entityA has DinoComponent) {
                 Collision(entityA, entityB)
-            } else if (entityB in dinoCmps) {
+            } else if (entityB has DinoComponent) {
                 Collision(entityB, entityA)
             } else {
                 return null
@@ -26,15 +30,12 @@ private data class Collision(val dino: Entity, val wall: Entity) {
     }
 }
 
-@AllOf(components = [PhysicComponent::class, ImageComponent::class])
 class PhysicSystem(
-    private val physicWorld: World,
-    private val imageCmps: ComponentMapper<ImageComponent>,
-    private val physicCmps: ComponentMapper<PhysicComponent>,
-    private val dinoCmps: ComponentMapper<DinoComponent>,
-    private val damageCmps: ComponentMapper<DamageComponent>,
-    private val colorCmps: ComponentMapper<DinoColorComponent>
-) : IteratingSystem(interval = Fixed(1 / 60f)), ContactListener {
+    private val physicWorld: World = inject(),
+) : IteratingSystem(
+    family = family { all(PhysicComponent, ImageComponent) },
+    interval = Fixed(1 / 60f)
+), ContactListener {
     override fun onUpdate() {
         if (physicWorld.autoClearForces) {
             LOG.error { "AutoClearForces must be set to false to guarantee a correct physic step behavior." }
@@ -51,8 +52,8 @@ class PhysicSystem(
 
     // store position before world update for smooth interpolated rendering
     override fun onTickEntity(entity: Entity) {
-        val imageCmp = imageCmps[entity]
-        val physicCmp = physicCmps[entity]
+        val imageCmp = entity[ImageComponent]
+        val physicCmp = entity[PhysicComponent]
         val (bodyX, bodyY) = physicCmp.body.position
 
         imageCmp.image.run {
@@ -70,8 +71,8 @@ class PhysicSystem(
 
     // interpolate between position before world step and real position after world step for smooth rendering
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
-        val imageCmp = imageCmps[entity]
-        val physicCmp = physicCmps[entity]
+        val imageCmp = entity[ImageComponent]
+        val physicCmp = entity[PhysicComponent]
 
         imageCmp.image.run {
             val prevX = x
@@ -87,12 +88,18 @@ class PhysicSystem(
 
     override fun beginContact(contact: Contact) {
         if (contact.fixtureA.isSensor && contact.fixtureB.isSensor) {
-            val (dino, wall) = Collision.fromContact(contact, dinoCmps) ?: return
+            val (dino, wall) = fromContact(contact) ?: return
 
-            val dinoColor = colorCmps[dino]
-            val wallColor = colorCmps[wall]
+            val dinoColor = dino[DinoColorComponent]
+            val wallColor = wall[DinoColorComponent]
             if (dinoColor != wallColor) {
-                configureEntity(dino) { damageCmps.addOrUpdate(it) { ++damage } }
+                dino.configure {
+                    it.addOrUpdate(
+                        DamageComponent,
+                        add = { DamageComponent(1) },
+                        update = { damageCmp -> damageCmp.damage++ }
+                    )
+                }
             }
         }
     }

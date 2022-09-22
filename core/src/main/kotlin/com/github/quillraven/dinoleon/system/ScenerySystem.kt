@@ -6,10 +6,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.github.quillraven.dinoleon.actor.ParallaxBackground
 import com.github.quillraven.fleks.IntervalSystem
+import com.github.quillraven.fleks.World.Companion.inject
 import ktx.math.vec2
 
 
-class ScenerySystem(private val stage: Stage) : IntervalSystem() {
+class ScenerySystem(private val stage: Stage = inject()) : IntervalSystem() {
     private val textures = mapOf(
         "ground" to Texture("ground.png"),
         "bg1" to Texture("bg1.png"),

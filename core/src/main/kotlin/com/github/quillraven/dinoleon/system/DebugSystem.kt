@@ -7,11 +7,12 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.fleks.IntervalSystem
+import com.github.quillraven.fleks.World.Companion.inject
 
 class DebugSystem(
-    private val physicWorld: World,
-    private val camera: Camera,
-    stage: Stage
+    private val physicWorld: World = inject(),
+    private val camera: Camera = inject(),
+    stage: Stage = inject()
 ) : IntervalSystem() {
     private val physicRenderer = Box2DDebugRenderer()
     private val profiler = GLProfiler(Gdx.graphics)

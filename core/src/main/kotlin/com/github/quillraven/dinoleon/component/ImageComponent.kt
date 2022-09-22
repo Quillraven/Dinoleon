@@ -1,10 +1,14 @@
 package com.github.quillraven.dinoleon.component
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.github.quillraven.fleks.Component
+import com.github.quillraven.fleks.ComponentType
 
-class ImageComponent : Comparable<ImageComponent> {
+class ImageComponent : Component<ImageComponent>, Comparable<ImageComponent> {
     lateinit var image: Image
     var layer = 0
+
+    override fun type() = ImageComponent
 
     override fun compareTo(other: ImageComponent): Int {
         val layerDiff = layer.compareTo(other.layer)
@@ -19,4 +23,6 @@ class ImageComponent : Comparable<ImageComponent> {
             }
         }
     }
+
+    companion object : ComponentType<ImageComponent>()
 }

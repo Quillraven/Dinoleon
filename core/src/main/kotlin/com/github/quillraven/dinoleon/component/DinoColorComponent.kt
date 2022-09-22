@@ -1,5 +1,8 @@
 package com.github.quillraven.dinoleon.component
 
+import com.github.quillraven.fleks.Component
+import com.github.quillraven.fleks.ComponentType
+
 enum class DinoColor {
     RED, GREEN, BLUE, YELLOW;
 
@@ -19,4 +22,8 @@ enum class DinoColor {
     }
 }
 
-data class DinoColorComponent(var color: DinoColor = DinoColor.BLUE)
+data class DinoColorComponent(var color: DinoColor = DinoColor.BLUE) : Component<DinoColorComponent> {
+    override fun type() = DinoColorComponent
+
+    companion object : ComponentType<DinoColorComponent>()
+}
