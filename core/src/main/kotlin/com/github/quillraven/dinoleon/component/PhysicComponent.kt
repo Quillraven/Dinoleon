@@ -39,11 +39,11 @@ class PhysicComponent(
             }
         }
 
-        val onAddPhysic: ComponentHook<PhysicComponent> = { _, entity, physic ->
+        val onAddPhysic: ComponentHook<PhysicComponent> = { entity, physic ->
             physic.body.userData = entity
         }
 
-        val onRemovePhysic: ComponentHook<PhysicComponent> = { _, _, physic ->
+        val onRemovePhysic: ComponentHook<PhysicComponent> = { _, physic ->
             val body = physic.body
             body.world.destroyBody(body)
             body.userData = null

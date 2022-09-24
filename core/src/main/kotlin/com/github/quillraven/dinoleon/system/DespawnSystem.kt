@@ -17,7 +17,7 @@ class DespawnSystem(
             // because the event could cause a "removeAll" call in the GameScreen
             // which also recreates the player entity and therefore
             // and therefore this entity could link to a recycled player instead
-            world.remove(entity)
+            entity.remove()
             stage.root.fire(SpawnRemovalEvent())
         }
     }

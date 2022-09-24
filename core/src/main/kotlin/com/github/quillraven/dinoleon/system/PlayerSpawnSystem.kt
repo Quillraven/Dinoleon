@@ -43,7 +43,7 @@ class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSy
 
     override fun onTickEntity(entity: Entity) {
         if (respawnPlayer) {
-            world.remove(entity)
+            entity.remove()
         }
     }
 }
