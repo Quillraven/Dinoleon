@@ -1,5 +1,5 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.7.10-red.svg)](http://kotlinlang.org/)
-[![Fleks](https://img.shields.io/badge/Fleks-1.6--JVM-success.svg)](https://github.com/Quillraven/Fleks/)
+[![Fleks](https://img.shields.io/badge/Fleks-2.0-success.svg)](https://github.com/Quillraven/Fleks/)
 
 # Dinoleon
 
@@ -36,7 +36,7 @@ in order to challenge Fleks and to see its capabilities I used it in this game.
 - **RenderSystem** as a sorted IteratingSystem
 - **PhysicSystem** as a fixed interval IteratingSystem and ContactListener for [Box2D](https://box2d.org/)
 - **ScenerySystem** as an Intervalsystem
-- **PhysicComponent** with a ComponentListener to properly cleanup physic related resources
+- **PhysicComponent** with a ComponentHook to properly cleanup physic related resources
 
 You can find system code in the `system` package and component code in the `component` package.
 
