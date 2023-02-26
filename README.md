@@ -1,5 +1,5 @@
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.7.21-red.svg)](http://kotlinlang.org/)
-[![Fleks](https://img.shields.io/badge/Fleks-2.2-success.svg)](https://github.com/Quillraven/Fleks/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.8.10-red.svg)](http://kotlinlang.org/)
+[![Fleks](https://img.shields.io/badge/Fleks-2.3-success.svg)](https://github.com/Quillraven/Fleks/)
 
 # Dinoleon
 
