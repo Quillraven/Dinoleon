@@ -28,7 +28,7 @@ fun createSkin(): Skin {
     val uiAtlas = TextureAtlas("ui.atlas").apply {
         // atlas textures which do not fit into atlas to atlas
         // for easier access and disposal
-        Drawables.values().forEach {
+        Drawables.entries.forEach {
             if (this.findRegion(it.atlasKey) == null) {
                 addRegion(it.atlasKey, TextureRegion(Texture(it.assetPath)))
             }

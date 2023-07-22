@@ -9,14 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
-import com.github.quillraven.dinoleon.component.PhysicComponent
 import com.github.quillraven.dinoleon.event.*
 import com.github.quillraven.dinoleon.system.*
 import com.github.quillraven.dinoleon.ui.setActiveHearts
 import com.github.quillraven.dinoleon.ui.setGameOverlay
 import com.github.quillraven.dinoleon.ui.setMenuOverlay
 import com.github.quillraven.dinoleon.ui.setScoreOverlay
-import com.github.quillraven.fleks.world
+import com.github.quillraven.fleks.configureWorld
 import ktx.app.KtxScreen
 import ktx.box2d.createWorld
 import ktx.math.vec2
@@ -31,7 +30,7 @@ class GameScreen(
         autoClearForces = false
     }
     private val gameAtlas = TextureAtlas("game.atlas")
-    private val eWorld = world {
+    private val eWorld = configureWorld {
         val debug = properties["debug"].toBoolean()
 
         injectables {
@@ -41,11 +40,6 @@ class GameScreen(
             if (debug) {
                 add(gameStage.viewport.camera)
             }
-        }
-
-        components {
-            onAdd(PhysicComponent, PhysicComponent.onAddPhysic)
-            onRemove(PhysicComponent, PhysicComponent.onRemovePhysic)
         }
 
         systems {

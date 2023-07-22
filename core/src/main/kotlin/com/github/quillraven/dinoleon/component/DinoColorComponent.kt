@@ -11,7 +11,7 @@ enum class DinoColor {
     }
 
     companion object {
-        val size = values().size
+        val size = entries.size
 
         fun byOrdinal(ordinal: Int): DinoColor = when (ordinal) {
             0 -> RED

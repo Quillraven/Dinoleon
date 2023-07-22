@@ -3,13 +3,14 @@ package com.github.quillraven.dinoleon.component
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentHook
 import com.github.quillraven.fleks.ComponentType
+import com.github.quillraven.fleks.Entity
+import com.github.quillraven.fleks.World
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
+import com.badlogic.gdx.physics.box2d.World as PhysicWorld
 
 class PhysicComponent(
     val impulse: Vector2 = Vector2()
@@ -18,9 +19,20 @@ class PhysicComponent(
 
     override fun type() = PhysicComponent
 
+    override fun World.onAdd(entity: Entity) {
+        this@PhysicComponent.body.userData = entity
+
+    }
+
+    override fun World.onRemove(entity: Entity) {
+        val body = this@PhysicComponent.body
+        body.world.destroyBody(body)
+        body.userData = null
+    }
+
     companion object : ComponentType<PhysicComponent>() {
         fun physicCmpFromImage(
-            world: World,
+            world: PhysicWorld,
             image: Image,
             fixtureAction: BodyDefinition.(Float, Float) -> Unit
         ): PhysicComponent {
@@ -37,16 +49,6 @@ class PhysicComponent(
                     this.fixtureAction(width, height)
                 }
             }
-        }
-
-        val onAddPhysic: ComponentHook<PhysicComponent> = { entity, physic ->
-            physic.body.userData = entity
-        }
-
-        val onRemovePhysic: ComponentHook<PhysicComponent> = { _, physic ->
-            val body = physic.body
-            body.world.destroyBody(body)
-            body.userData = null
         }
     }
 }

@@ -1,10 +1,10 @@
 buildscript {
 	repositories {
 		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
 		mavenLocal()
 		google()
 		gradlePluginPortal()
-		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -19,9 +19,12 @@ allprojects {
 configure(subprojects) {
 	apply plugin: 'java-library'
 	apply plugin: 'kotlin'
-	sourceCompatibility = 1.8
+	sourceCompatibility = 11
 	compileJava {
 		options.incremental = true
+	}
+	compileKotlin {
+		kotlinOptions.jvmTarget = "11"
 	}
 }
 
@@ -30,9 +33,9 @@ subprojects {
 	ext.appName = 'Dinoleon'
 	repositories {
 		mavenCentral()
+		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
 		mavenLocal()
 		gradlePluginPortal()
-		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://jitpack.io' }
 		maven { url 'https://s01.oss.sonatype.org' }
 	}
