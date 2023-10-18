@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.github.quillraven.dinoleon.component.Animation
 import com.github.quillraven.dinoleon.component.Animation.Companion.NO_ANIMATION
 import com.github.quillraven.dinoleon.component.Animation2D
-import com.github.quillraven.dinoleon.component.ImageComponent
+import com.github.quillraven.dinoleon.component.Image
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
@@ -15,12 +15,12 @@ import ktx.log.logger
 
 class AnimationSystem(
     private val atlas: TextureAtlas = inject(),
-) : IteratingSystem(family { all(Animation, ImageComponent) }) {
+) : IteratingSystem(family { all(Animation, Image) }) {
     private val cachedAnimations = mutableMapOf<String, Animation2D>()
 
     override fun onTickEntity(entity: Entity) {
         with(entity[Animation]) {
-            entity[ImageComponent].image.drawable = if (nextAnimation != NO_ANIMATION) {
+            entity[Image].image.drawable = if (nextAnimation != NO_ANIMATION) {
                 animation = animation(nextAnimation)
                 nextAnimation = NO_ANIMATION
                 stateTime = 0f

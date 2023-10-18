@@ -4,14 +4,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.DinoColor
 import com.github.quillraven.dinoleon.component.DinoColors
-import com.github.quillraven.dinoleon.component.ImageComponent
-import com.github.quillraven.dinoleon.component.PhysicComponent
+import com.github.quillraven.dinoleon.component.Image
+import com.github.quillraven.dinoleon.component.Image2D
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
 import com.github.quillraven.dinoleon.event.StartSpawnEvent
 import com.github.quillraven.dinoleon.screen.GameScreen.Companion.Difficulty
@@ -59,21 +58,16 @@ class SpawnSystem(
             world.entity {
                 val colorIdx = MathUtils.random(0, DinoColors.entries.size - 1)
                 it += DinoColor(color = DinoColors.byOrdinal(colorIdx))
-
-                it += ImageComponent().apply {
-                    image = Image().apply {
-                        setScaling(Scaling.stretch)
-                        drawable = wallRegions[colorIdx]
+                it += Image(
+                    image = Image2D(wallRegions[colorIdx], Scaling.stretch).apply {
                         setPosition(15.75f, 1.2f)
                         setSize(0.25f, 1.75f)
-                    }
+                    },
                     layer = 1
-                }
-                it += physicCmpFromImage(physicWorld, it[ImageComponent].image) { width, height ->
+                )
+                it += physicCmpFromImage(physicWorld, it[Image].image) { width, height ->
                     box(width, height) { isSensor = true }
-
-                }
-                it[PhysicComponent].impulse.set(spawn.speed, 0f)
+                }.also { phCmp -> phCmp.impulse.set(spawn.speed, 0f) }
             }
 
             numSpawns--

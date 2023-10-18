@@ -1,7 +1,6 @@
 package com.github.quillraven.dinoleon.system
 
 import com.badlogic.gdx.physics.box2d.World
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.*
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
@@ -21,15 +20,14 @@ class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSy
             respawnPlayer = false
 
             world.entity {
-                it += ImageComponent().apply {
-                    image = Image().apply {
-                        setScaling(Scaling.fill)
+                it += Image(
+                    Image2D(null, Scaling.fill).apply {
                         setPosition(1.5f, 1f)
                         setSize(2f, 2f)
                     }
-                }
+                )
                 it += Animation(nextAnimation = "dino-blue-run")
-                it += physicCmpFromImage(physicWorld, it[ImageComponent].image) { width, height ->
+                it += physicCmpFromImage(physicWorld, it[Image].image) { width, height ->
                     box(width, height)
                     val sensorDistX = 0.5f
                     val sensorH = height + 0.5f

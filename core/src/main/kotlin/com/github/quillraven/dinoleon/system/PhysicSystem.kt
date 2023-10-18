@@ -33,7 +33,7 @@ private data class Collision(val dino: Entity, val wall: Entity) {
 class PhysicSystem(
     private val physicWorld: World = inject(),
 ) : IteratingSystem(
-    family = family { all(PhysicComponent, ImageComponent) },
+    family = family { all(PhysicComponent, Image) },
     interval = Fixed(1 / 60f)
 ), ContactListener {
     override fun onUpdate() {
@@ -52,11 +52,11 @@ class PhysicSystem(
 
     // store position before world update for smooth interpolated rendering
     override fun onTickEntity(entity: Entity) {
-        val imageCmp = entity[ImageComponent]
+        val (image) = entity[Image]
         val physicCmp = entity[PhysicComponent]
         val (bodyX, bodyY) = physicCmp.body.position
 
-        imageCmp.image.run {
+        image.run {
             setPosition(
                 bodyX - width * 0.5f,
                 bodyY - height * 0.5f
@@ -71,10 +71,10 @@ class PhysicSystem(
 
     // interpolate between position before world step and real position after world step for smooth rendering
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
-        val imageCmp = entity[ImageComponent]
+        val (image) = entity[Image]
         val physicCmp = entity[PhysicComponent]
 
-        imageCmp.image.run {
+        image.run {
             val prevX = x
             val prevY = y
             val (bodyX, bodyY) = physicCmp.body.position
