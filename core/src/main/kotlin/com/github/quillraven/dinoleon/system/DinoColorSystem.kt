@@ -5,14 +5,14 @@ import com.badlogic.gdx.Input
 import com.github.quillraven.dinoleon.component.Animation
 import com.github.quillraven.dinoleon.component.DinoColor
 import com.github.quillraven.dinoleon.component.DinoColors
-import com.github.quillraven.dinoleon.component.DinoComponent
+import com.github.quillraven.dinoleon.component.Dino
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import ktx.app.KtxInputAdapter
 
 class DinoColorSystem : IteratingSystem(
-    family = family { all(DinoComponent, DinoColor) },
+    family = family { all(Dino, DinoColor) },
     enabled = false
 ), KtxInputAdapter {
     private var newColor: DinoColors? = null

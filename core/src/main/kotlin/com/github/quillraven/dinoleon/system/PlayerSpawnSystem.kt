@@ -12,7 +12,7 @@ import com.github.quillraven.fleks.World.Companion.inject
 import ktx.box2d.box
 import ktx.box2d.edge
 
-class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSystem(family { all(DinoComponent) }) {
+class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSystem(family { all(Dino) }) {
     var respawnPlayer = true
 
     override fun onTick() {
@@ -35,7 +35,7 @@ class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSy
                     val sensorH = height + 0.5f
                     edge(sensorDistX, -sensorH, sensorDistX, sensorH) { isSensor = true }
                 }
-                it += DinoComponent(life = 5)
+                it += Dino(life = 5)
                 it += DinoColor(DinoColors.BLUE)
             }
         }

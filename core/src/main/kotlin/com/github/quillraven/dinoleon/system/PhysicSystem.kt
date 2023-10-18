@@ -19,9 +19,9 @@ private data class Collision(val dino: Entity, val wall: Entity) {
             val entityA = contact.fixtureA.body.userData as Entity
             val entityB = contact.fixtureB.body.userData as Entity
 
-            return if (entityA has DinoComponent) {
+            return if (entityA has Dino) {
                 Collision(entityA, entityB)
-            } else if (entityB has DinoComponent) {
+            } else if (entityB has Dino) {
                 Collision(entityB, entityA)
             } else {
                 return null
