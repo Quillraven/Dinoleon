@@ -3,7 +3,7 @@ package com.github.quillraven.dinoleon.system
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.*
-import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
+import com.github.quillraven.dinoleon.component.Physic.Companion.physicCmpFromImage
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family

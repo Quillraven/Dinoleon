@@ -33,7 +33,7 @@ private data class Collision(val dino: Entity, val wall: Entity) {
 class PhysicSystem(
     private val physicWorld: World = inject(),
 ) : IteratingSystem(
-    family = family { all(PhysicComponent, Image) },
+    family = family { all(Physic, Image) },
     interval = Fixed(1 / 60f)
 ), ContactListener {
     override fun onUpdate() {
@@ -53,8 +53,8 @@ class PhysicSystem(
     // store position before world update for smooth interpolated rendering
     override fun onTickEntity(entity: Entity) {
         val (image) = entity[Image]
-        val physicCmp = entity[PhysicComponent]
-        val (bodyX, bodyY) = physicCmp.body.position
+        val (body, impulse) = entity[Physic]
+        val (bodyX, bodyY) = body.position
 
         image.run {
             setPosition(
@@ -63,21 +63,21 @@ class PhysicSystem(
             )
         }
 
-        if (!physicCmp.impulse.isZero) {
-            physicCmp.body.applyLinearImpulse(physicCmp.impulse, physicCmp.body.worldCenter, true)
-            physicCmp.impulse.setZero()
+        if (!impulse.isZero) {
+            body.applyLinearImpulse(impulse, body.worldCenter, true)
+            impulse.setZero()
         }
     }
 
     // interpolate between position before world step and real position after world step for smooth rendering
     override fun onAlphaEntity(entity: Entity, alpha: Float) {
         val (image) = entity[Image]
-        val physicCmp = entity[PhysicComponent]
+        val (body) = entity[Physic]
 
         image.run {
             val prevX = x
             val prevY = y
-            val (bodyX, bodyY) = physicCmp.body.position
+            val (bodyX, bodyY) = body.position
 
             setPosition(
                 MathUtils.lerp(prevX, bodyX - width * 0.5f, alpha),

@@ -11,7 +11,7 @@ import com.github.quillraven.dinoleon.component.DinoColor
 import com.github.quillraven.dinoleon.component.DinoColors
 import com.github.quillraven.dinoleon.component.Image
 import com.github.quillraven.dinoleon.component.Image2D
-import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
+import com.github.quillraven.dinoleon.component.Physic.Companion.physicCmpFromImage
 import com.github.quillraven.dinoleon.event.StartSpawnEvent
 import com.github.quillraven.dinoleon.screen.GameScreen.Companion.Difficulty
 import com.github.quillraven.fleks.IntervalSystem
@@ -65,9 +65,9 @@ class SpawnSystem(
                     },
                     layer = 1
                 )
-                it += physicCmpFromImage(physicWorld, it[Image].image) { width, height ->
+                it += physicCmpFromImage(physicWorld, it[Image].image, spawn.speed, 0f) { width, height ->
                     box(width, height) { isSensor = true }
-                }.also { phCmp -> phCmp.impulse.set(spawn.speed, 0f) }
+                }
             }
 
             numSpawns--

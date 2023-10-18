@@ -10,45 +10,48 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.World
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
+import ktx.math.vec2
 import com.badlogic.gdx.physics.box2d.World as PhysicWorld
 
-class PhysicComponent(
-    val impulse: Vector2 = Vector2()
-) : Component<PhysicComponent> {
-    lateinit var body: Body
+data class Physic(
+    val body: Body,
+    val impulse: Vector2,
+) : Component<Physic> {
 
-    override fun type() = PhysicComponent
+    override fun type() = Physic
 
     override fun World.onAdd(entity: Entity) {
-        this@PhysicComponent.body.userData = entity
-
+        this@Physic.body.userData = entity
     }
 
     override fun World.onRemove(entity: Entity) {
-        val body = this@PhysicComponent.body
+        val body = this@Physic.body
         body.world.destroyBody(body)
         body.userData = null
     }
 
-    companion object : ComponentType<PhysicComponent>() {
+    companion object : ComponentType<Physic>() {
         fun physicCmpFromImage(
             world: PhysicWorld,
             image: Image,
+            impulseX: Float = 0f,
+            impulseY: Float = 0f,
             fixtureAction: BodyDefinition.(Float, Float) -> Unit
-        ): PhysicComponent {
+        ): Physic {
             val x = image.x
             val y = image.y
             val width = image.width
             val height = image.height
 
-            return PhysicComponent().apply {
+            return Physic(
                 body = world.body(BodyDef.BodyType.DynamicBody) {
                     position.set(x + width * 0.5f, y + height * 0.5f)
                     fixedRotation = true
                     allowSleep = false
                     this.fixtureAction(width, height)
-                }
-            }
+                },
+                impulse = vec2(impulseX, impulseY)
+            )
         }
     }
 }
