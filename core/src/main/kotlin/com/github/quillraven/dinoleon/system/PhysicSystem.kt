@@ -94,14 +94,13 @@ class PhysicSystem(
             val wallColor = wall[DinoColorComponent]
             if (dinoColor != wallColor) {
                 dino.configure {
-                    it.getOrAdd(DamageComponent) { DamageComponent(0) }.damage++
+                    it.getOrAdd(Damage) { Damage(0) }.damage++
                 }
             }
         }
     }
 
-    override fun endContact(contact: Contact) {
-    }
+    override fun endContact(contact: Contact) = Unit
 
     override fun preSolve(contact: Contact?, oldManifold: Manifold?) = Unit
 

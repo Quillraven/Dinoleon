@@ -1,7 +1,7 @@
 package com.github.quillraven.dinoleon.system
 
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.github.quillraven.dinoleon.component.DamageComponent
+import com.github.quillraven.dinoleon.component.Damage
 import com.github.quillraven.dinoleon.component.DinoComponent
 import com.github.quillraven.dinoleon.event.DinoDamageEvent
 import com.github.quillraven.dinoleon.event.DinoDeathEvent
@@ -12,17 +12,17 @@ import com.github.quillraven.fleks.World.Companion.inject
 
 class DamageSystem(
     private val stage: Stage = inject()
-) : IteratingSystem(family { all(DinoComponent, DamageComponent) }) {
+) : IteratingSystem(family { all(DinoComponent, Damage) }) {
     override fun onTickEntity(entity: Entity) {
         val dinoCmp = entity[DinoComponent]
-        val damageCmp = entity[DamageComponent]
+        val (damage) = entity[Damage]
 
-        dinoCmp.life -= damageCmp.damage
+        dinoCmp.life -= damage
         stage.root.fire(DinoDamageEvent(dinoCmp.life))
         if (dinoCmp.life <= 0) {
             stage.root.fire(DinoDeathEvent())
         }
 
-        entity.configure { it -= DamageComponent }
+        entity.configure { it -= Damage }
     }
 }
