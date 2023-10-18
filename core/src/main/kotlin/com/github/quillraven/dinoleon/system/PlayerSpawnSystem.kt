@@ -36,7 +36,7 @@ class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSy
                     edge(sensorDistX, -sensorH, sensorDistX, sensorH) { isSensor = true }
                 }
                 it += DinoComponent(life = 5)
-                it += DinoColorComponent(DinoColor.BLUE)
+                it += DinoColor(DinoColors.BLUE)
             }
         }
     }

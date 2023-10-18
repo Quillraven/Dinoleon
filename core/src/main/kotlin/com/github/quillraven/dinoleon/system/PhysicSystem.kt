@@ -90,8 +90,8 @@ class PhysicSystem(
         if (contact.fixtureA.isSensor && contact.fixtureB.isSensor) {
             val (dino, wall) = fromContact(contact) ?: return
 
-            val dinoColor = dino[DinoColorComponent]
-            val wallColor = wall[DinoColorComponent]
+            val (dinoColor) = dino[DinoColor]
+            val (wallColor) = wall[DinoColor]
             if (dinoColor != wallColor) {
                 dino.configure {
                     it.getOrAdd(Damage) { Damage(0) }.damage++

@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.Scaling
 import com.github.quillraven.dinoleon.component.DinoColor
-import com.github.quillraven.dinoleon.component.DinoColorComponent
+import com.github.quillraven.dinoleon.component.DinoColors
 import com.github.quillraven.dinoleon.component.ImageComponent
 import com.github.quillraven.dinoleon.component.PhysicComponent
 import com.github.quillraven.dinoleon.component.PhysicComponent.Companion.physicCmpFromImage
@@ -31,8 +31,8 @@ class SpawnSystem(
     private var spawnIdx = 0
     private var numSpawns = 0
     private var spawnInterval = 0f
-    private val wallRegions = Array(DinoColor.size) {
-        TextureRegionDrawable(atlas.findRegion("wall_${DinoColor.byOrdinal(it)}"))
+    private val wallRegions = Array(DinoColors.entries.size) {
+        TextureRegionDrawable(atlas.findRegion("wall_${DinoColors.byOrdinal(it)}"))
     }
     private val currentSpawn: Spawn
         get() = spawns[spawnIdx]
@@ -57,8 +57,8 @@ class SpawnSystem(
             spawnInterval = spawn.interval
 
             world.entity {
-                val colorIdx = MathUtils.random(0, DinoColor.size - 1)
-                it += DinoColorComponent(color = DinoColor.byOrdinal(colorIdx))
+                val colorIdx = MathUtils.random(0, DinoColors.entries.size - 1)
+                it += DinoColor(color = DinoColors.byOrdinal(colorIdx))
 
                 it += ImageComponent().apply {
                     image = Image().apply {

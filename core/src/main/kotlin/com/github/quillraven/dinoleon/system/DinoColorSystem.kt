@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.github.quillraven.dinoleon.component.Animation
 import com.github.quillraven.dinoleon.component.DinoColor
-import com.github.quillraven.dinoleon.component.DinoColorComponent
+import com.github.quillraven.dinoleon.component.DinoColors
 import com.github.quillraven.dinoleon.component.DinoComponent
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
@@ -12,20 +12,22 @@ import com.github.quillraven.fleks.World.Companion.family
 import ktx.app.KtxInputAdapter
 
 class DinoColorSystem : IteratingSystem(
-    family = family { all(DinoComponent, DinoColorComponent) },
+    family = family { all(DinoComponent, DinoColor) },
     enabled = false
 ), KtxInputAdapter {
-    private var newColor: DinoColor? = null
+    private var newColor: DinoColors? = null
     private val sndChange = Gdx.audio.newSound(Gdx.files.internal("change_color.wav"))
 
     override fun onTickEntity(entity: Entity) {
-        val color = newColor
-        val colorCmp = entity[DinoColorComponent]
-        if (color != null && color != colorCmp.color) {
-            sndChange.play()
-            newColor = null
-            colorCmp.color = color
-            entity[Animation].nextAnimation = "dino-${color.name.lowercase()}-run"
+        with(entity[DinoColor]) {
+            newColor?.let { nextColor ->
+                if (nextColor == color) return // no color change -> do nothing
+
+                sndChange.play()
+                color = nextColor
+                newColor = null
+                entity[Animation].nextAnimation = "dino-${color.name.lowercase()}-run"
+            }
         }
     }
 
@@ -35,10 +37,10 @@ class DinoColorSystem : IteratingSystem(
         }
 
         newColor = when (keycode) {
-            Input.Keys.Q -> DinoColor.RED
-            Input.Keys.W -> DinoColor.GREEN
-            Input.Keys.E -> DinoColor.BLUE
-            Input.Keys.R -> DinoColor.YELLOW
+            Input.Keys.Q -> DinoColors.RED
+            Input.Keys.W -> DinoColors.GREEN
+            Input.Keys.E -> DinoColors.BLUE
+            Input.Keys.R -> DinoColors.YELLOW
             else -> return false
         }
         return true

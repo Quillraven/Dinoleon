@@ -3,7 +3,7 @@ package com.github.quillraven.dinoleon.component
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 
-enum class DinoColor {
+enum class DinoColors {
     RED, GREEN, BLUE, YELLOW;
 
     override fun toString(): String {
@@ -11,9 +11,7 @@ enum class DinoColor {
     }
 
     companion object {
-        val size = entries.size
-
-        fun byOrdinal(ordinal: Int): DinoColor = when (ordinal) {
+        fun byOrdinal(ordinal: Int): DinoColors = when (ordinal) {
             0 -> RED
             1 -> GREEN
             2 -> BLUE
@@ -22,8 +20,8 @@ enum class DinoColor {
     }
 }
 
-data class DinoColorComponent(var color: DinoColor = DinoColor.BLUE) : Component<DinoColorComponent> {
-    override fun type() = DinoColorComponent
+data class DinoColor(var color: DinoColors = DinoColors.BLUE) : Component<DinoColor> {
+    override fun type() = DinoColor
 
-    companion object : ComponentType<DinoColorComponent>()
+    companion object : ComponentType<DinoColor>()
 }
