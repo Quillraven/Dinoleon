@@ -28,7 +28,7 @@ class PlayerSpawnSystem(private val physicWorld: World = inject()) : IteratingSy
                         setSize(2f, 2f)
                     }
                 }
-                it += AnimationComponent(nextAnimation = "dino-blue-run")
+                it += Animation(nextAnimation = "dino-blue-run")
                 it += physicCmpFromImage(physicWorld, it[ImageComponent].image) { width, height ->
                     box(width, height)
                     val sensorDistX = 0.5f

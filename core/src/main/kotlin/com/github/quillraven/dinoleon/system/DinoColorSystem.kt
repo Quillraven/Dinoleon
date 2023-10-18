@@ -2,7 +2,7 @@ package com.github.quillraven.dinoleon.system
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.github.quillraven.dinoleon.component.AnimationComponent
+import com.github.quillraven.dinoleon.component.Animation
 import com.github.quillraven.dinoleon.component.DinoColor
 import com.github.quillraven.dinoleon.component.DinoColorComponent
 import com.github.quillraven.dinoleon.component.DinoComponent
@@ -25,7 +25,7 @@ class DinoColorSystem : IteratingSystem(
             sndChange.play()
             newColor = null
             colorCmp.color = color
-            entity[AnimationComponent].nextAnimation = "dino-${color.name.lowercase()}-run"
+            entity[Animation].nextAnimation = "dino-${color.name.lowercase()}-run"
         }
     }
 
